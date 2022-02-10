@@ -20,10 +20,10 @@ public class ItemBill implements Serializable {
 	private Long id;
 
 	private Integer amount;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="product_id")
-	
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "product_id")
+
 	private Product product;
 
 	public Long getId() {
@@ -43,10 +43,17 @@ public class ItemBill implements Serializable {
 	}
 
 	public Double calculateAmount() {
-		return amount.doubleValue() *product.getPrice();
+		return amount.doubleValue() * product.getPrice();
 	}
-	
-	
+
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
 	private static final long serialVersionUID = 1L;
 
 }

@@ -2,14 +2,24 @@ package com.bolsadeideas.springboot.app.controllers;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,6 +36,8 @@ import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
 
 @Controller
 public class ClientController {
+	
+	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired
 	@Qualifier("serviceJPA")
@@ -33,6 +45,7 @@ public class ClientController {
 
 	@Autowired
 	private IUploadFileService uploadFileService;
+
 
 	@GetMapping(value = "/uploads/{filename:.+}")
 	public ResponseEntity<Resource> viewPhoto(@PathVariable String filename) {
@@ -53,7 +66,7 @@ public class ClientController {
 	@GetMapping(value = "/view/{id}")
 	public String view(@PathVariable(value = "id") Long id, Model model, RedirectAttributes flash) {
 
-		Client client = clientService.findOne(id);
+		Client client = clientService.fetchByIdWithInvoices(id); // clientService.findOne(id);
 		if (client == null) {
 			flash.addFlashAttribute("error", "The client does not exist in the database.");
 
@@ -67,7 +80,32 @@ public class ClientController {
 	}
 
 	@GetMapping({ "/index", "/" })
-	public String list(Model model) {
+	public String list(Model model, Authentication authentication, HttpServletRequest request) {
+		
+		if(authentication!=null) {
+			logger.info("Hello authenticated user, your user is: ".concat(authentication.getName()));
+		}
+		
+		if(hasRole("ROLE_ADMIN")) {
+			logger.info("Hi! ".concat(authentication.getName().concat(" You have access!")));
+		}else {
+			logger.info("Hi! ".concat(authentication.getName().concat(" You don't have access!")));
+		}
+		
+		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request, "ROLE_");
+		
+		if(securityContext.isUserInRole("ADMIN")) {
+			logger.info("Hi! ".concat(authentication.getName().concat(" You have access!").concat(" form class: SecurityContextHolderAwareRequestWrapper")));
+		}else {
+			logger.info("Hi! ".concat(authentication.getName().concat(" You don't have access!").concat(" form class: SecurityContextHolderAwareRequestWrapper")));
+		}
+		
+		if(request.isUserInRole("ROLE_ADMIN")) {
+			logger.info("Hi! ".concat(authentication.getName().concat(" You have access!").concat(" form class: HttpServletRequest")));
+		}else {
+			logger.info("Hi! ".concat(authentication.getName().concat(" You don't have access!").concat(" form class: HttpServletRequest")));
+		}
+		
 		model.addAttribute("title", "client list");
 		model.addAttribute("clients", clientService.findAll());
 
@@ -127,8 +165,8 @@ public class ClientController {
 
 			flash.addFlashAttribute("info", "you have uploaded correctly: " + uniqueFilename);
 			client.setPhoto(uniqueFilename);
-			}
-		
+		}
+
 		clientService.save(client);
 
 		return "redirect:index";
@@ -150,6 +188,34 @@ public class ClientController {
 		}
 
 		return "redirect:/index";
+	}
+	
+	private boolean hasRole(String role) {
+		
+		SecurityContext context = SecurityContextHolder.getContext();
+		if(context==null) {
+			return false;
+		}
+		
+		Authentication auth = context.getAuthentication();
+		
+		if(auth==null) {
+			return false;
+			
+			
+		}
+		
+		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+		
+		for(GrantedAuthority authority: authorities) {
+			if(role.equals(authority.getAuthority())) {
+				
+				logger.info("Hi User! ".concat(auth.getName().concat(" Your role is: ".concat(authority.getAuthority()))));
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }

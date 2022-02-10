@@ -127,6 +127,11 @@ public class Client implements Serializable {
 		this.photo = photo;
 	}
 
+	@Override
+	public String toString() {
+		return name + " " + lastName;
+	}
+
 	
 
 

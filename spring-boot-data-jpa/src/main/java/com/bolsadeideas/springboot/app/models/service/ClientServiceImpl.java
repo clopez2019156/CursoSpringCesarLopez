@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bolsadeideas.springboot.app.models.DAO.IClientDAO;
+import com.bolsadeideas.springboot.app.models.DAO.IInvoiceDAO;
 import com.bolsadeideas.springboot.app.models.DAO.IProductDAO;
+import com.bolsadeideas.springboot.app.models.entity.Bill;
 import com.bolsadeideas.springboot.app.models.entity.Client;
 import com.bolsadeideas.springboot.app.models.entity.Product;
 
@@ -19,6 +21,9 @@ public class ClientServiceImpl implements IClientService{
 	
 	@Autowired
 	private IProductDAO productDao;
+	
+	@Autowired
+	private IInvoiceDAO billDao;
 	
 	@Override
 	@Transactional(readOnly=true)
@@ -48,8 +53,50 @@ public class ClientServiceImpl implements IClientService{
 	}
 
 	@Override
+	@Transactional(readOnly=true)
 	public List<Product> findByName(String term) {
-		return productDao.findByName(term);
+		return productDao.findByNameLikeIgnoreCase("%"+term+"%");
 	}
 
+	@Override
+	@Transactional
+	public void saveBill(Bill bill) {
+		billDao.save(bill);
+		
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public Product findProductById(Long id) {
+		
+		return productDao.findById(id).orElse(null);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public Bill findBillById(Long id) {
+		
+		return billDao.findById(id).orElse(null);
+	}
+
+	@Override
+	@Transactional
+	public void deleteBill(Long id) {
+		billDao.deleteById(id);
+		
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public Bill fetchByIdWithClientWithItemBillWithProduct(Long id) {
+		return billDao.fetchByIdWithClientWithItemBillWithProduct(id);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public Client fetchByIdWithInvoices(Long id) {
+		return clientDao.fetchByIdWithInvoices(id);
+	}
+
+	
 }
