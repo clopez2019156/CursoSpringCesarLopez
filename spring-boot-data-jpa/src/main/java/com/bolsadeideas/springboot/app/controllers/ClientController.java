@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -46,7 +47,7 @@ public class ClientController {
 	@Autowired
 	private IUploadFileService uploadFileService;
 
-
+	@Secured("ROLE_USER")
 	@GetMapping(value = "/uploads/{filename:.+}")
 	public ResponseEntity<Resource> viewPhoto(@PathVariable String filename) {
 
@@ -63,6 +64,7 @@ public class ClientController {
 
 	}
 
+	@Secured("ROLE_USER")
 	@GetMapping(value = "/view/{id}")
 	public String view(@PathVariable(value = "id") Long id, Model model, RedirectAttributes flash) {
 
@@ -82,8 +84,12 @@ public class ClientController {
 	@GetMapping({ "/index", "/" })
 	public String list(Model model, Authentication authentication, HttpServletRequest request) {
 		
+		model.addAttribute("title", "client list");
+		model.addAttribute("clients", clientService.findAll());
 		if(authentication!=null) {
 			logger.info("Hello authenticated user, your user is: ".concat(authentication.getName()));
+		}else {
+			return "index";
 		}
 		
 		if(hasRole("ROLE_ADMIN")) {
@@ -106,12 +112,12 @@ public class ClientController {
 			logger.info("Hi! ".concat(authentication.getName().concat(" You don't have access!").concat(" form class: HttpServletRequest")));
 		}
 		
-		model.addAttribute("title", "client list");
-		model.addAttribute("clients", clientService.findAll());
+		
 
 		return "index";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/form")
 	public String form(Map<String, Object> model) {
 		Client client = new Client();
@@ -120,7 +126,8 @@ public class ClientController {
 
 		return "form";
 	}
-
+	
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/form/{id}")
 	public String edit(@PathVariable(value = "id") Long id, Map<String, Object> model) {
 
@@ -138,6 +145,7 @@ public class ClientController {
 		return "form";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/form")
 	public String save(@Valid Client client, BindingResult result, Model model,
 			@RequestParam("file") MultipartFile photo, RedirectAttributes flash) {
@@ -171,7 +179,8 @@ public class ClientController {
 
 		return "redirect:index";
 	}
-
+	
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
 

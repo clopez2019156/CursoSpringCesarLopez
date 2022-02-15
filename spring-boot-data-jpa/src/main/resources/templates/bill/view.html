@@ -16,6 +16,7 @@
 				<h4 class="card-title">
 					<a th:href="@{'/view/'+${bill.client.id}}"
 						class="btn btn-light btn-xs">&laquo; Return</a>
+						<a th:href="@{'/bill/view/'+${bill.id}(format=pdf)}" class="btn btn-danger btn-xs float-end">PDF</a>
 				</h4>
 				<div class="container">
 					<ul class="list-group  my-2">

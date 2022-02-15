@@ -9,3 +9,10 @@ insert into invoices(description, observation, client_id, create_at)values('Invo
 insert into invoices_items(amount, product_id, bill_id) values (10,1,1);
 insert into invoices_items(amount, product_id, bill_id) values (5,2,1);
 insert into invoices_items(amount, product_id, bill_id) values (15,3,1);
+
+insert into users(username, password, enabled) values('cesar','$2a$10$EwK1zPvQ9MUVX5BRZoLqce.tRoMJjlBBIeuWB8/CK/qMSxpE/CBpO',1);
+insert into users(username, password, enabled) values('admin','$2a$10$/HOfzh0s626CxK.UM6P/V.LkiKqZcT974/qaDOyMzDBUxDn3eV1Pi',1);
+
+insert into authorities (user_id, authority) values(1, "ROLE_USER");
+insert into authorities (user_id, authority) values(2, "ROLE_USER");
+insert into authorities (user_id, authority) values(2, "ROLE_ADMIN");

@@ -15,10 +15,10 @@
 			<thead>
 				<tr class="table-primary">
 					<th sec:authorize="hasRole('ROLE_USER')">id</th>
-					<th>Name</th>
-					<th>Last Name</th>
-					<th>Email</th>
-					<th>Create At</th>
+					<th th:text="#{text.client.name}">Name</th>
+					<th th:text="#{text.client.lastName}">Last Name</th>
+					<th  th:text="#{text.client.email}">Email</th>
+					<th  th:text="#{text.client.createAt}">Create At</th>
 					<th sec:authorize="hasRole('ROLE_ADMIN')">Create Bill</th>
 					<th sec:authorize="hasRole('ROLE_ADMIN')">Put Client</th>
 					<th sec:authorize="hasRole('ROLE_ADMIN')">Delete Client</th>
