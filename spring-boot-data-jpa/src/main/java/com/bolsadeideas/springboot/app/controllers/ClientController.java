@@ -80,6 +80,9 @@ public class ClientController {
 
 		return "view";
 	}
+	
+	
+	
 
 	@GetMapping({ "/index", "/" })
 	public String list(Model model, Authentication authentication, HttpServletRequest request) {
